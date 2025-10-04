@@ -1,9 +1,12 @@
 import { View } from "react-native";
 import { Text, Button, Card } from "react-native-paper";
-import { useLocalSearchParams, router } from "expo-router";
+import { useLocalSearchParams, useRouter } from "expo-router";
+import { useSelector } from "react-redux";
 
 export default function ProductDetailsScreen() {
   const { id } = useLocalSearchParams();
+  const { isAuthenticated } = useSelector((state) => state.auth);
+  const router = useRouter();
 
   return (
     <View style={{ flex: 1, padding: 16, backgroundColor: "#f5f5f5" }}>
@@ -24,7 +27,17 @@ export default function ProductDetailsScreen() {
           <Button mode="outlined" onPress={() => router.back()}>
             Go Back
           </Button>
-          <Button mode="contained">Mock Add to Cart</Button>
+          <Button
+            onPress={() => {
+              if (!isAuthenticated) router.push("/auth/login");
+              else {
+                /* dispatch addToCart */
+              }
+            }}
+            mode="contained"
+          >
+            Mock Add to Cart
+          </Button>
         </Card.Actions>
       </Card>
     </View>
