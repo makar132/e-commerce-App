@@ -1,39 +1,60 @@
-import { View } from "react-native";
-import { Text, Button } from "react-native-paper";
-import { router } from "expo-router";
+import { useEffect } from "react";
+import { View, StyleSheet } from "react-native";
+import { Text, Button, ActivityIndicator, Avatar } from "react-native-paper";
+import { useSelector, useDispatch } from "react-redux";
+import { logoutUser } from "../../src/store/slices/authSlice";
+import { useRouter } from "expo-router";
 
 export default function ProfileScreen() {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { loading, isAuthenticated, user, profile } = useSelector(
+    (state) => state.auth
+  );
+
+  useEffect(() => {
+    if (!loading && !isAuthenticated) {
+      router.replace("/auth/login");
+    }
+  }, [loading, isAuthenticated]);
+
+  if (loading || !profile) {
+    return (
+      <View style={styles.center}>
+        <ActivityIndicator size="large" />
+      </View>
+    );
+  }
+
+  const handleLogout = () => {
+    dispatch(logoutUser());
+  };
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        alignItems: "center",
-        padding: 16,
-      }}
-    >
-      <Text variant="headlineSmall" style={{ marginBottom: 16 }}>
-        Profile Screen
-      </Text>
-
-      <Text
-        variant="bodyMedium"
-        style={{ textAlign: "center", color: "#666", marginBottom: 24 }}
-      >
-        User profile and authentication will be implemented here
-      </Text>
-
-      <Button
-        mode="contained"
-        onPress={() => router.push("/auth/login")}
-        style={{ marginBottom: 8 }}
-      >
-        Go to Login
-      </Button>
-
-      <Button mode="outlined" onPress={() => router.push("/admin/products")}>
-        Admin Panel (Test)
+    <View style={styles.container}>
+      <Avatar.Text
+        size={80}
+        label={profile.name.charAt(0)}
+        style={styles.avatar}
+      />
+      <Text variant="headlineMedium">{profile.name}</Text>
+      <Text variant="bodyMedium">{user.email}</Text>
+      <Text variant="bodySmall">Role: {profile.role}</Text>
+      <Button mode="outlined" onPress={handleLogout} style={styles.button}>
+        Logout
       </Button>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: {
+    flex: 1,
+    alignItems: "center",
+    padding: 16,
+    justifyContent: "center",
+  },
+  avatar: { marginBottom: 16 },
+  button: { marginTop: 24, width: "60%" },
+  center: { flex: 1, justifyContent: "center", alignItems: "center" },
+});

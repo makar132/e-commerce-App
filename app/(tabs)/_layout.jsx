@@ -1,5 +1,6 @@
 import { Tabs } from "expo-router";
 import { MaterialIcons } from "@expo/vector-icons";
+import AuthButton from "../../src/components/AuthButton";
 
 export default function TabLayout() {
   return (
@@ -13,6 +14,8 @@ export default function TabLayout() {
         headerTitleStyle: {
           fontWeight: "bold",
         },
+        headerRight: () => <AuthButton />,
+        headerTitleAlign: "center",
       }}
     >
       <Tabs.Screen

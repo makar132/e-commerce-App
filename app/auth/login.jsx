@@ -1,46 +1,78 @@
-import { View } from "react-native";
-import { Text, Button, Card } from "react-native-paper";
-import { router } from "expo-router";
+import { useState, useEffect } from "react";
+import { View, StyleSheet } from "react-native";
+import {
+  TextInput,
+  Button,
+  Text,
+  ActivityIndicator,
+  HelperText,
+} from "react-native-paper";
+import { useDispatch, useSelector } from "react-redux";
+import { loginUser } from "../../src/store/slices/authSlice";
+import { useRouter } from "expo-router";
 
 export default function LoginScreen() {
+  const dispatch = useDispatch();
+  const router = useRouter();
+  const { loading, error, isAuthenticated } = useSelector(
+    (state) => state.auth
+  );
+
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+
+  useEffect(() => {
+    if (isAuthenticated) {
+      router.replace("/(tabs)");
+    }
+  }, [isAuthenticated]);
+
+  const handleLogin = () => {
+    dispatch(loginUser({ email, password }));
+  };
+
   return (
-    <View
-      style={{
-        flex: 1,
-        justifyContent: "center",
-        padding: 16,
-        backgroundColor: "#f5f5f5",
-      }}
-    >
-      <Card>
-        <Card.Content>
-          <Text
-            variant="headlineSmall"
-            style={{ textAlign: "center", marginBottom: 24 }}
-          >
-            Login Screen
-          </Text>
+    <View style={styles.container}>
+      <Text variant="headlineMedium">Login</Text>
+      {error && (
+        <HelperText type="error" visible={true}>
+          {error}
+        </HelperText>
+      )}
 
-          <Text
-            variant="bodyMedium"
-            style={{ textAlign: "center", marginBottom: 24, color: "#666" }}
-          >
-            Login form with validation will be implemented here
-          </Text>
-
-          <Button
-            mode="contained"
-            onPress={() => router.replace("/(tabs)")}
-            style={{ marginBottom: 16 }}
-          >
-            Mock Login (Navigate to Tabs)
-          </Button>
-
-          <Button mode="text" onPress={() => router.push("/auth/register")}>
-            Go to Register
-          </Button>
-        </Card.Content>
-      </Card>
+      <TextInput
+        label="Email"
+        value={email}
+        onChangeText={setEmail}
+        keyboardType="email-address"
+        autoCapitalize="none"
+        style={styles.input}
+      />
+      <TextInput
+        label="Password"
+        value={password}
+        onChangeText={setPassword}
+        secureTextEntry
+        style={styles.input}
+      />
+      {loading ? (
+        <ActivityIndicator />
+      ) : (
+        <Button mode="contained" onPress={handleLogin}>
+          Sign In
+        </Button>
+      )}
+      <Button onPress={() => router.push("/auth/register")}>
+        Create Account
+      </Button>
+      <Button onPress={() => router.push("/auth/reset")}>
+        Forgot Password?
+      </Button>
     </View>
   );
 }
+
+const styles = StyleSheet.create({
+  container: { flex: 1, padding: 16, justifyContent: "center" },
+  input: { marginBottom: 12 },
+});
